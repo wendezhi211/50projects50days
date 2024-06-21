@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT余额查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ChatGPT余额查询</h1>
+        <button onclick="checkBalance()">查询余额</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function checkBalance() {
+            const apiUrl = 'https://api.deepseek.com/user/balance';
+            const token = 'sk-6c20978f19df46ed8bc3c5bca93588fd';
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResult(data);
+            } catch (error) {
+                console.error('查询余额时出错:', error);
+                document.getElementById('result').innerHTML = '查询余额时出错，请稍后再试。';
+            }
+        }
+
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            if (data.is_available) {
+                let balanceInfo = data.balance_infos[0];
+                resultDiv.innerHTML = `
+                    <p>货币: ${balanceInfo.currency}</p>
+                    <p>总余额: ${balanceInfo.total_balance}</p>
+                    <p>已授予余额: ${balanceInfo.granted_balance}</p>
+                    <p>充值余额: ${balanceInfo.topped_up_balance}</p>
+                `;
+            } else {
+                resultDiv.innerHTML = '余额信息不可用。';
+            }
+        }
+    </script>
+</body>
+</html>
